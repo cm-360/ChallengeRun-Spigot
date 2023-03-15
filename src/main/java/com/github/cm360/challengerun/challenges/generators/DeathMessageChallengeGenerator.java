@@ -4,7 +4,7 @@ import org.bukkit.entity.EntityType;
 
 import com.github.cm360.challengerun.challenges.ChallengeGenerator;
 import com.github.cm360.challengerun.challenges.types.DeathMessageChallenge;
-import com.github.cm360.challengerun.utils.CaseUtils;
+import com.github.cm360.challengerun.utils.NameUtils;
 
 public class DeathMessageChallengeGenerator extends ChallengeGenerator {
 	
@@ -84,7 +84,7 @@ public class DeathMessageChallengeGenerator extends ChallengeGenerator {
 		else
 			assistMobs = assistMobsHard;
 		EntityType assistMob = assistMobs[rand.nextInt(assistMobs.length)];
-		return CaseUtils.toTitleCase(assistMob.name().replace('_', ' '));
+		return NameUtils.enumToTitleCase(assistMob);
 	}
 
 }

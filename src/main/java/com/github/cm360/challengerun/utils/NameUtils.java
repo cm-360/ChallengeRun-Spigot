@@ -3,7 +3,7 @@ package com.github.cm360.challengerun.utils;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class CaseUtils {
+public class NameUtils {
 
 	private static final String WORD_SEPARATOR = " ";
 
@@ -27,6 +27,10 @@ public class CaseUtils {
 								word.charAt(0))
 								+ word.substring(1).toLowerCase())
 				.collect(Collectors.joining(WORD_SEPARATOR));
+	}
+	
+	public static String enumToTitleCase(Enum<?> enumObj) {
+		return toTitleCase(enumObj.name().replace('_', ' '));
 	}
 
 }
