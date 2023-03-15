@@ -35,4 +35,9 @@ public class CompleteAdvancementChallenge extends Challenge {
 		}
 	}
 
+	@Override
+	public String getDescription() {
+		return String.format("Complete the advancement: ", advancementDisplay.getTitle());
+	}
+
 }

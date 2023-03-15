@@ -20,5 +20,10 @@ public class DeathMessageChallenge extends Challenge {
 			this.completedBy(event.getEntity());
 		}
 	}
+	
+	@Override
+	public String getDescription() {
+		return String.format("Die with the death message: \"%s\".", deathMessage);
+	}
 
 }

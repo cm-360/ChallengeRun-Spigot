@@ -9,6 +9,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
 import com.github.cm360.challengerun.challenges.Challenge;
+import com.github.cm360.challengerun.utils.NameUtils;
 
 public class KillEntityChallenge extends Challenge {
 
@@ -32,6 +33,11 @@ public class KillEntityChallenge extends Challenge {
 			return;
 		
 		this.completedBy((Player) damager);
+	}
+	
+	@Override
+	public String getDescription() {
+		return String.format("Kill a %s.",NameUtils.enumToTitleCase(entityType));
 	}
 
 }

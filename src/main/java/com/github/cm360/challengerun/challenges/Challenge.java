@@ -23,5 +23,11 @@ public abstract class Challenge implements Listener {
 	public void end() {
 		HandlerList.unregisterAll(this);
 	}
+	
+	public abstract String getDescription();
+	
+	public String toString() {
+		return getDescription();
+	}
 
 }

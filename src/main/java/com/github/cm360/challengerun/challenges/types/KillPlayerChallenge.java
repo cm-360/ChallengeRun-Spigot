@@ -41,5 +41,11 @@ public class KillPlayerChallenge extends Challenge {
 		this.completedBy(Bukkit.getPlayer(targetPlayerId));
 		super.end();
 	}
+	
+	@Override
+	public String getDescription() {
+		return String.format("Find and kill %s. They will need to survive for the points!",
+				Bukkit.getPlayer(targetPlayerId).getDisplayName());
+	}
 
 }

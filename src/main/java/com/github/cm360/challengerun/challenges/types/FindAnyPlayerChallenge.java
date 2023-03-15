@@ -27,5 +27,10 @@ public class FindAnyPlayerChallenge extends Challenge {
 			this.completedBy((Player) nearbyPlayer);
 		}
 	}
+	
+	@Override
+	public String getDescription() {
+		return "Find another player!";
+	}
 
 }

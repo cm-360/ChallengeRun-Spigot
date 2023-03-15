@@ -8,6 +8,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryInteractEvent;
 
+import com.github.cm360.challengerun.utils.NameUtils;
+
 public class ObtainItemChallenge extends CraftItemChallenge {
 
 	public ObtainItemChallenge(Material itemMaterial) {
@@ -39,6 +41,11 @@ public class ObtainItemChallenge extends CraftItemChallenge {
 		Player player = (Player) who;
 		if (player.getInventory().contains(itemMaterial))
 			this.completedBy(player);
+	}
+	
+	@Override
+	public String getDescription() {
+		return String.format("Obtain the item: ", NameUtils.enumToTitleCase(itemMaterial));
 	}
 
 }
