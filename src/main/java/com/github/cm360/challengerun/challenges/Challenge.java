@@ -10,8 +10,6 @@ import com.github.cm360.challengerun.main.ChallengeRunPlugin;
 
 public abstract class Challenge implements Listener {
 	
-	public static ChallengeRunPlugin plugin;
-	
 	public void checkPreCompletion(Player player) { };
 	
 	public void completedBy(Player player) {
@@ -19,7 +17,7 @@ public abstract class Challenge implements Listener {
 	}
 	
 	public void start() {
-		Bukkit.getPluginManager().registerEvents(this, plugin);
+		Bukkit.getPluginManager().registerEvents(this, ChallengeRunPlugin.instance);
 	}
 	
 	public void end() {
