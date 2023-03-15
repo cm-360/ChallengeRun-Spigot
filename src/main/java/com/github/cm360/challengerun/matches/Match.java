@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.github.cm360.challengerun.challenges.Challenge;
+import com.github.cm360.challengerun.events.MatchCompletedEvent;
 import com.github.cm360.challengerun.main.ChallengeRunPlugin;
 
 /**
@@ -78,6 +79,7 @@ public class Match {
 		endChallenge();
 		announce("The game is over! Lets see how everyone did!");
 		annouceScores();
+		Bukkit.getPluginManager().callEvent(new MatchCompletedEvent(this));
 	}
 	
 	

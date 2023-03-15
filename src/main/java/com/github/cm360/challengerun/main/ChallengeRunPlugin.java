@@ -2,9 +2,11 @@ package com.github.cm360.challengerun.main;
 
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.github.cm360.challengerun.matches.Match;
@@ -20,11 +22,12 @@ public class ChallengeRunPlugin extends JavaPlugin {
 	public void onEnable() {
 		instance = this;
 		this.getCommand("challengerun").setExecutor(this);
+		Bukkit.getPluginManager().registerEvents(matchManager, this);
 	}
 	
 	@Override
 	public void onDisable() {
-		
+		HandlerList.unregisterAll(this);
 	}
 	
 	@Override
