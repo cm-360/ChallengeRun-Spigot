@@ -1,0 +1,9 @@
+name: ChallengeRun
+main: com.github.cm360.challengerun.main.ChallengeRunPlugin
+version: 0.0.1
+api-version: 1.19.3
+commands:
+	challengerun:
+		description: Interact with ChallengeRun matches
+		aliases: chr
+		usage: /<command>
