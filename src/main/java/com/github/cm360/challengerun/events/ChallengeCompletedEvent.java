@@ -8,7 +8,7 @@ import com.github.cm360.challengerun.challenges.Challenge;
 
 public class ChallengeCompletedEvent extends PlayerEvent {
 
-private static final HandlerList HANDLERS = new HandlerList();
+	private static final HandlerList HANDLERS = new HandlerList();
 
 	protected Challenge challenge;
 
