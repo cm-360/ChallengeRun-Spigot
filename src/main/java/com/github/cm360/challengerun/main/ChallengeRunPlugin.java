@@ -1,7 +1,13 @@
 package com.github.cm360.challengerun.main;
 
+import java.util.List;
+
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.github.cm360.challengerun.matches.Match;
 import com.github.cm360.challengerun.matches.MatchManager;
 
 public class ChallengeRunPlugin extends JavaPlugin {
@@ -13,11 +19,94 @@ public class ChallengeRunPlugin extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		instance = this;
+		this.getCommand("challengerun").setExecutor(this);
 	}
 	
 	@Override
 	public void onDisable() {
 		
+	}
+	
+	@Override
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		List<String> argsList = List.of(args);
+		if (argsList.isEmpty())
+			return false;
+		
+		Player player;
+		Match match;
+		
+		String nextArg = argsList.remove(0);
+		switch (nextArg) {
+		case "create":
+			match = matchManager.createMatch();
+			sender.sendMessage("Created a new match! Code: " + match.getCode());
+			break;
+		case "join":
+			// Validate player only
+			if (!(sender instanceof Player)) {
+				sender.sendMessage("Only players can use this command!");
+				break;
+			}
+			player = (Player) sender;
+			// Check argument
+			nextArg = argsList.remove(0);
+			if (nextArg == null) {
+				sender.sendMessage("You must provide a match code!");
+				break;
+			}
+			// Check if already in match
+			if (matchManager.isPlayerInMatch(player)) {
+				sender.sendMessage("You are already in a match!");
+				break;
+			}
+			// Check if match exists
+			match = matchManager.getMatchByCode(nextArg);
+			if (match == null) {
+				sender.sendMessage("That match code is not valid!");
+				break;
+			}
+			// Add player to match
+			match.addPlayer(player);
+			break;
+		case "leave":
+			// Validate player only
+			if (!(sender instanceof Player)) {
+				sender.sendMessage("Only players can use this command!");
+				break;
+			}
+			player = (Player) sender;
+			// Check if not in match
+			match = matchManager.getMatchForPlayer(player);
+			if (match == null) {
+				sender.sendMessage("You are not in a match!");
+				break;
+			}
+			// Remove player from match
+			match.removePlayer(player);
+			break;
+		case "skip":
+			// Validate player only
+			if (!(sender instanceof Player)) {
+				sender.sendMessage("Only players can use this command!");
+				break;
+			}
+			player = (Player) sender;
+			// Check if not in match
+			match = matchManager.getMatchForPlayer(player);
+			if (match == null) {
+				sender.sendMessage("You are not in a match!");
+				break;
+			}
+			// Vote to skip the challenge
+			match.voteToSkip(player);
+			break;
+		case "forceskip":
+			break;
+		default:
+			return false;
+		}
+		return true;
 	}
 
 }
