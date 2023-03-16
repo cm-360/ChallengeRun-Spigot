@@ -1,7 +1,7 @@
 name: ChallengeRun
 main: com.github.cm360.challengerun.main.ChallengeRunPlugin
 version: 0.0.1
-api-version: 1.19.2
+api-version: 1.19
 commands:
   challengerun:
     description: Interact with ChallengeRun matches
