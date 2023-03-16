@@ -117,7 +117,7 @@ public class ChallengeRunPlugin extends JavaPlugin {
 			}
 			// Remove player from match
 			sender.sendMessage("Starting the match...");
-			match.start();
+			match.start(player.getWorld());
 			break;
 		case "stop":
 			// Validate player only

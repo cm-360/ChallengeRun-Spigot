@@ -5,13 +5,20 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.World;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scoreboard.Scoreboard;
 
 import com.github.cm360.challengerun.challenges.Challenge;
 import com.github.cm360.challengerun.challenges.generators.BreakBlockChallengeGenerator;
@@ -36,14 +43,22 @@ public class Match implements Listener {
 	/** The players in this match. */
 	private Map<UUID, Integer> playersAndScores = new HashMap<UUID, Integer>();
 
+	/** The scoreboard for displaying this match's players' points **/
+	private Scoreboard scoreboard;
+
+	/** The bossbar for displaying the time remaining in this match. **/
+	private BossBar bossbar;
+
 	/** The players who have voted to skip the current challenge. **/
 	private Set<UUID> votes = new HashSet<UUID>();
-	
+
 	/** The players who have completed the current challenge **/
 	private Set<UUID> completed = new HashSet<UUID>();
 
+	/** Determines if players are allowed to vote-skip the current challenge. **/
 	private boolean votingAllowed = false;
-	
+
+	/** Generator to randomly select challenges. **/
 	private MultiChallengeGenerator challengeGenerator = new MultiChallengeGenerator();
 
 	/** The current challenge. */
@@ -58,12 +73,27 @@ public class Match implements Listener {
 	/** The number of minutes to put on the challenge timer. */
 	private int challengeTimerMins = 10;
 
+	/** The length of this match in minutes **/
+	private int matchDuration = 120;
+
+	/** The number of seconds between scoreboard and bossbar updates. **/
+	private int displayIntervalSecs = 1;
+
 	/** The task ID of the currently running main timer. */
 	private int mainTimerTaskId;
 
 	/** The task ID of the voting timer. */
 	private int votingTimerTaskId;
-	
+
+	/** The task ID of the display updater. **/
+	private int displayTimerTaskId;
+
+	/** Provides the absolute in-game time of world as a reference. **/
+	private Supplier<Long> tickReference;
+
+	/** The absolute in-game time this match was started at. **/
+	private long startTime;
+
 	public Match() {
 		challengeGenerator.addGenerator(
 				new BreakBlockChallengeGenerator(),
@@ -92,6 +122,11 @@ public class Match implements Listener {
 		challengeGenerator.addGenerator(
 				new ObtainItemChallengeGenerator(),
 				5);
+
+		scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+		bossbar = Bukkit.createBossBar(
+				NamespacedKey.fromString("match" + getCode(), ChallengeRunPlugin.instance),
+				"Time Remaining for Challenge", BarColor.GREEN, BarStyle.SOLID);
 	}
 
 	/**
@@ -101,6 +136,8 @@ public class Match implements Listener {
 	 */
 	public void addPlayer(Player player) {
 		playersAndScores.put(player.getUniqueId(), 0);
+
+		bossbar.addPlayer(player);
 	}
 
 	/**
@@ -110,29 +147,58 @@ public class Match implements Listener {
 	 */
 	public void removePlayer(Player player) {
 		playersAndScores.remove(player.getUniqueId());
+
+		bossbar.removePlayer(player);
 	}
 
+	/**
+	 * Determines if a player is in this match or not.
+	 *
+	 * @param player The player to look for
+	 * @return true, If the given player is in this match
+	 */
 	public boolean containsPlayer(Player player) {
 		return playersAndScores.containsKey(player.getUniqueId());
 	}
 
+	/**
+	 * Returns the UUIDs of this match's players. The returned set is backed by the
+	 * internal score map, so changes to the player list will be reflected
+	 * immediately in the set, and vice-versa.
+	 *
+	 * @return The set of all UUIDs of players in this game
+	 */
 	public Set<UUID> getPlayerIds() {
 		return playersAndScores.keySet();
 	}
 
+	/**
+	 * Get this match's unique code. This code is an 8-character hexadecimal
+	 * representation of this object's hashCode value.
+	 *
+	 * @return This match's code
+	 */
 	public String getCode() {
 		return String.format("%08X", this.hashCode());
 	}
 
 	/**
-	 * Starts the match and registers its event handlers.
+	 * Starts the match and registers its event handlers. In order to accurately
+	 * track elapsed time, a world to use as a tick reference is required.
+	 *
+	 * @param tickReferenceWorld The world to use as a tick reference
 	 */
-	public void start() {
+	public void start(World tickReferenceWorld) {
 		announce("Welcome to Challenge Run! Your objective is to complete as many challenges as you can.");
 		announce(String.format("You will have %d minutes to prepare before being given your first task, good luck!",
 				prepTimerMins));
 		startPrepPeriod();
 		Bukkit.getPluginManager().registerEvents(this, ChallengeRunPlugin.instance);
+		Bukkit.getScheduler().runTaskTimer(ChallengeRunPlugin.instance, this::updateDisplay, 0,
+				displayIntervalSecs * 20);
+
+		this.tickReference = tickReferenceWorld::getFullTime;
+		startTime = tickReference.get();
 	}
 
 	/**
@@ -143,6 +209,7 @@ public class Match implements Listener {
 		endChallenge(true);
 		announce("The game is over! Lets see how everyone did!");
 		annouceScores();
+		Bukkit.getScheduler().cancelTask(displayTimerTaskId);
 		Bukkit.getPluginManager().callEvent(new MatchCompletedEvent(this));
 		HandlerList.unregisterAll(this);
 	}
@@ -169,6 +236,19 @@ public class Match implements Listener {
 			skipChallenge();
 	}
 
+	/**
+	 * Fires when a challenge completed event is called. If the event is for a
+	 * different challenge than {@code currentChallenge}, or if the player has
+	 * already completed the current challenge, this method will return immediately
+	 * and do nothing. For new completions, the player's score will be incremented
+	 * by 1, and it will be announced.
+	 * 
+	 * If this player is the last completer, (@code allPlayersCompleted()} will be
+	 * called. Otherwise, the challenge will continue and the
+	 * {@code endVotingPeriod()} will be called.
+	 *
+	 * @param event The challenge completed event object
+	 */
 	@EventHandler
 	public void onChallengeCompleted(ChallengeCompletedEvent event) {
 		Challenge completedChallenge = event.getChallenge();
@@ -190,7 +270,11 @@ public class Match implements Listener {
 			endVotingPeriod();
 		}
 	}
-	
+
+	/**
+	 * Called when all players completed the current challenge. This will generate a
+	 * new challenge and restart the challenge and voting period timers.
+	 */
 	private void allPlayersCompleted() {
 		endChallenge(false);
 		announce("Great job! Everyone completed the challenge before the time limit. Your next challenge is:");
@@ -221,8 +305,6 @@ public class Match implements Listener {
 		currentChallenge.start();
 		announce(currentChallenge.getDescription());
 	}
-	
-	
 
 	/**
 	 * Called when the preparation period timer ends. This will generate the first
@@ -308,7 +390,11 @@ public class Match implements Listener {
 	}
 
 	/**
-	 * End the current challenge.
+	 * Ends the current challenge. If {@code allowAward} is true, the current
+	 * challenge will also be allowed to award players right before ending, such as
+	 * for surviving the timer.
+	 *
+	 * @param allowAward Whether to allow awarding
 	 */
 	private void endChallenge(boolean allowAward) {
 		cancelTimers();
@@ -326,9 +412,20 @@ public class Match implements Listener {
 		playersAndScores.keySet().forEach(id -> Bukkit.getPlayer(id).sendMessage(message));
 	}
 
+	/**
+	 * Announce the scores of this match's players.
+	 */
 	private void annouceScores() {
 		playersAndScores.entrySet().stream().sorted((e1, e2) -> e2.getValue() - e1.getValue()).forEach(e -> announce(
 				String.format("%s: %d points", Bukkit.getPlayer(e.getKey()).getDisplayName(), e.getValue())));
+	}
+
+	/**
+	 * Update the scoreboard and bossbar for this match's players.
+	 */
+	private void updateDisplay() {
+		double secondsElapsed = (tickReference.get() - startTime) / 20.0;
+		bossbar.setProgress(secondsElapsed / (matchDuration * 60));
 	}
 
 	/**
@@ -338,8 +435,7 @@ public class Match implements Listener {
 	 * @param delayMins The number of minutes to wait
 	 */
 	private int schedule(Runnable runnable, long delayMins) {
-		return Bukkit.getScheduler().scheduleSyncDelayedTask(ChallengeRunPlugin.instance, runnable,
-				delayMins * 60 * 20);
+		return Bukkit.getScheduler().scheduleSyncDelayedTask(ChallengeRunPlugin.instance, runnable, delayMins * 1200);
 	}
 
 }
