@@ -141,6 +141,7 @@ public class Match implements Listener {
 		// Increment score
 		playersAndScores.put(playerId, playersAndScores.get(playerId) + 1);
 		announce(String.format("%s has completed the challenge and earned a point!", player.getDisplayName()));
+		completed.add(playerId);
 		// Check if everyone completed
 		if (completed.containsAll(playersAndScores.keySet())) {
 			allPlayersCompleted();
