@@ -87,7 +87,7 @@ public class Match implements Listener {
 				new KillEntityChallengeGenerator(),
 				3);
 		challengeGenerator.addGenerator(
-				new KillPlayerChallengeGenerator(),
+				new KillPlayerChallengeGenerator(playersAndScores.keySet()),
 				2);
 		challengeGenerator.addGenerator(
 				new ObtainItemChallengeGenerator(),
