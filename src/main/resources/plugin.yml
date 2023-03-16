@@ -1,9 +1,15 @@
 name: ChallengeRun
-main: com.github.cm360.challengerun.main.ChallengeRunPlugin
 version: 0.0.1
+
+description: "Race your peers to complete the most challenges!"
+author: CM360
+website: "https://github.com/cm-360/ChallengeRun-Spigot"
+
+main: com.github.cm360.challengerun.main.ChallengeRunPlugin
 api-version: 1.19
+
 commands:
   challengerun:
-    description: Interact with ChallengeRun matches
+    description: "Interact with ChallengeRun matches"
     aliases: chr
     usage: "Usage: /<command> [create|join|leave|start|stop|noprep|info|skip]"
