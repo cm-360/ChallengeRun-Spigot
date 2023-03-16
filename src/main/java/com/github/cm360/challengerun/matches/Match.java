@@ -157,6 +157,7 @@ public class Match implements Listener {
 	 */
 	private void generateNewChallenge() {
 		currentChallenge = new ObtainItemChallengeGenerator().generateChallenge();
+		currentChallenge.start();
 		announce(currentChallenge.getDescription());
 	}
 
