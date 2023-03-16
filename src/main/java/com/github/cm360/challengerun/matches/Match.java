@@ -14,6 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import com.github.cm360.challengerun.challenges.Challenge;
+import com.github.cm360.challengerun.challenges.generators.ObtainItemChallengeGenerator;
 import com.github.cm360.challengerun.events.ChallengeCompletedEvent;
 import com.github.cm360.challengerun.events.MatchCompletedEvent;
 import com.github.cm360.challengerun.main.ChallengeRunPlugin;
@@ -155,7 +156,7 @@ public class Match implements Listener {
 	 * TODO Generates a new challenge.
 	 */
 	private void generateNewChallenge() {
-		currentChallenge = null;
+		currentChallenge = new ObtainItemChallengeGenerator().generateChallenge();
 		announce(currentChallenge.getDescription());
 	}
 
