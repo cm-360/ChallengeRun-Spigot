@@ -14,6 +14,15 @@ import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import com.github.cm360.challengerun.challenges.Challenge;
+import com.github.cm360.challengerun.challenges.generators.BreakBlockChallengeGenerator;
+import com.github.cm360.challengerun.challenges.generators.CompleteAdvancementChallengeGenerator;
+import com.github.cm360.challengerun.challenges.generators.CraftItemChallengeGenerator;
+import com.github.cm360.challengerun.challenges.generators.DeathMessageChallengeGenerator;
+import com.github.cm360.challengerun.challenges.generators.FindAnyPlayerChallengeGenerator;
+import com.github.cm360.challengerun.challenges.generators.FindBiomeChallengeGenerator;
+import com.github.cm360.challengerun.challenges.generators.KillEntityChallengeGenerator;
+import com.github.cm360.challengerun.challenges.generators.KillPlayerChallengeGenerator;
+import com.github.cm360.challengerun.challenges.generators.MultiChallengeGenerator;
 import com.github.cm360.challengerun.challenges.generators.ObtainItemChallengeGenerator;
 import com.github.cm360.challengerun.events.ChallengeCompletedEvent;
 import com.github.cm360.challengerun.events.MatchCompletedEvent;
@@ -34,6 +43,8 @@ public class Match implements Listener {
 	private Set<UUID> completed = new HashSet<UUID>();
 
 	private boolean votingAllowed = false;
+	
+	private MultiChallengeGenerator challengeGenerator = new MultiChallengeGenerator();
 
 	/** The current challenge. */
 	private Challenge currentChallenge;
@@ -52,6 +63,36 @@ public class Match implements Listener {
 
 	/** The task ID of the voting timer. */
 	private int votingTimerTaskId;
+	
+	public Match() {
+		challengeGenerator.addGenerator(
+				new BreakBlockChallengeGenerator(),
+				5);
+		challengeGenerator.addGenerator(
+				new CompleteAdvancementChallengeGenerator(),
+				3);
+		challengeGenerator.addGenerator(
+				new CraftItemChallengeGenerator(),
+				4);
+		challengeGenerator.addGenerator(
+				new DeathMessageChallengeGenerator(),
+				3);
+		challengeGenerator.addGenerator(
+				new FindAnyPlayerChallengeGenerator(),
+				5);
+		challengeGenerator.addGenerator(
+				new FindBiomeChallengeGenerator(),
+				2);
+		challengeGenerator.addGenerator(
+				new KillEntityChallengeGenerator(),
+				3);
+		challengeGenerator.addGenerator(
+				new KillPlayerChallengeGenerator(),
+				2);
+		challengeGenerator.addGenerator(
+				new ObtainItemChallengeGenerator(),
+				5);
+	}
 
 	/**
 	 * Adds a player to this match.
@@ -176,7 +217,7 @@ public class Match implements Listener {
 	 */
 	private void generateNewChallenge() {
 		completed.clear();
-		currentChallenge = new ObtainItemChallengeGenerator().generateChallenge();
+		currentChallenge = challengeGenerator.generateChallenge();
 		currentChallenge.start();
 		announce(currentChallenge.getDescription());
 	}
