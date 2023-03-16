@@ -197,6 +197,20 @@ public class ChallengeRunPlugin extends JavaPlugin {
 			match.voteToSkip(player);
 			break;
 		case "forceskip":
+			// Validate player only
+			if (!(sender instanceof Player)) {
+				sender.sendMessage("Only players can use this command!");
+				break;
+			}
+			player = (Player) sender;
+			// Check if not in match
+			match = matchManager.getMatchForPlayer(player);
+			if (match == null) {
+				sender.sendMessage("You are not in a match!");
+				break;
+			}
+			// Vote to skip the challenge
+			match.skipChallenge();
 			break;
 		default:
 			return false;
