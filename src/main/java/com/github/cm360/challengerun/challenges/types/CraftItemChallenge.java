@@ -30,7 +30,7 @@ public class CraftItemChallenge extends Challenge {
 	
 	@Override
 	public String getDescription() {
-		return String.format("Craft the item: ", NameUtils.enumToTitleCase(itemMaterial));
+		return String.format("Craft the item: %s", NameUtils.enumToTitleCase(itemMaterial));
 	}
 
 }

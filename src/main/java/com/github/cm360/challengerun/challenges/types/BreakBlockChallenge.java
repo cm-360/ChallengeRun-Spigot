@@ -23,7 +23,7 @@ public class BreakBlockChallenge extends Challenge {
 
 	@Override
 	public String getDescription() {
-		return String.format("Break the block: ", NameUtils.enumToTitleCase(blockMaterial));
+		return String.format("Break the block: %s", NameUtils.enumToTitleCase(blockMaterial));
 	}
 
 }

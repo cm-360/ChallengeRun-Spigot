@@ -45,7 +45,7 @@ public class ObtainItemChallenge extends CraftItemChallenge {
 	
 	@Override
 	public String getDescription() {
-		return String.format("Obtain the item: ", NameUtils.enumToTitleCase(itemMaterial));
+		return String.format("Obtain the item: %s", NameUtils.enumToTitleCase(itemMaterial));
 	}
 
 }
