@@ -136,7 +136,8 @@ public class Match implements Listener {
 	 */
 	public void addPlayer(Player player) {
 		playersAndScores.put(player.getUniqueId(), 0);
-
+		// I hope these persist across relogs :shrug:
+		player.setScoreboard(scoreboard);
 		bossbar.addPlayer(player);
 	}
 
@@ -147,7 +148,7 @@ public class Match implements Listener {
 	 */
 	public void removePlayer(Player player) {
 		playersAndScores.remove(player.getUniqueId());
-
+		// maybe we need to remove the scoreboard?
 		bossbar.removePlayer(player);
 	}
 
@@ -173,7 +174,7 @@ public class Match implements Listener {
 	}
 
 	/**
-	 * Get this match's unique code. This code is an 8-character hexadecimal
+	 * Gets this match's unique code. This code is an 8-character hexadecimal
 	 * representation of this object's hashCode value.
 	 *
 	 * @return This match's code
@@ -284,7 +285,7 @@ public class Match implements Listener {
 	}
 
 	/**
-	 * Skip the currently running challenge. This will cancel any currently running
+	 * Skips the currently running challenge. This will cancel any currently running
 	 * timers, end the current challenge, generate a new challenge, and restart the
 	 * challenge and voting periods.
 	 */
@@ -330,7 +331,7 @@ public class Match implements Listener {
 	}
 
 	/**
-	 * Start the prep timer.
+	 * Starts the prep timer.
 	 */
 	private void startPrepPeriod() {
 		mainTimerTaskId = schedule(this::prepTimerEnded, prepTimerMins);
@@ -346,7 +347,7 @@ public class Match implements Listener {
 	}
 
 	/**
-	 * Start the voting timer.
+	 * Starts the voting timer.
 	 */
 	private void startVotingPeriod() {
 		votingAllowed = true;
@@ -354,6 +355,9 @@ public class Match implements Listener {
 		votingTimerTaskId = schedule(this::endVotingPeriod, votingTimerMins);
 	}
 
+	/**
+	 * Closes the voting period and announce it.
+	 */
 	private void endVotingPeriod() {
 		closeVoting();
 		announce("The skip-vote period is now closed!");
@@ -368,14 +372,14 @@ public class Match implements Listener {
 	}
 
 	/**
-	 * Start the challenge timer.
+	 * Starts the challenge timer.
 	 */
 	private void startChallengePeriod() {
 		mainTimerTaskId = schedule(this::challengeTimerEnded, challengeTimerMins);
 	}
 
 	/**
-	 * Cancel all running timers.
+	 * Cancels all running timers.
 	 */
 	private void cancelTimers() {
 		BukkitScheduler bs = Bukkit.getScheduler();
@@ -404,7 +408,7 @@ public class Match implements Listener {
 	}
 
 	/**
-	 * Announce a message to all players in this match.
+	 * Announces a message to all players in this match.
 	 *
 	 * @param message Message to announce
 	 */
@@ -413,7 +417,7 @@ public class Match implements Listener {
 	}
 
 	/**
-	 * Announce the scores of this match's players.
+	 * Announces the scores of this match's players.
 	 */
 	private void annouceScores() {
 		playersAndScores.entrySet().stream().sorted((e1, e2) -> e2.getValue() - e1.getValue()).forEach(e -> announce(
@@ -421,7 +425,7 @@ public class Match implements Listener {
 	}
 
 	/**
-	 * Update the scoreboard and bossbar for this match's players.
+	 * Updates the scoreboard and bossbar for this match's players.
 	 */
 	private void updateDisplay() {
 		double secondsElapsed = (tickReference.get() - startTime) / 20.0;
@@ -429,7 +433,7 @@ public class Match implements Listener {
 	}
 
 	/**
-	 * Schedule a task to be run after a specified number of minutes.
+	 * Schedules a task to be run after a specified number of minutes.
 	 *
 	 * @param runnable  The task to run
 	 * @param delayMins The number of minutes to wait
