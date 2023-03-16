@@ -30,10 +30,6 @@ public class MatchManager implements Listener {
 		return null;
 	}
 	
-	public boolean isPlayerInMatch(Player player) {
-		return getMatchForPlayer(player) == null;
-	}
-	
 	@EventHandler
 	public void onMatchCompleted(MatchCompletedEvent event) {
 		matches.remove(event.getMatch().getCode());

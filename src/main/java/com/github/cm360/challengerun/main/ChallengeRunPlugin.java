@@ -1,5 +1,6 @@
 package com.github.cm360.challengerun.main;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -36,7 +37,9 @@ public class ChallengeRunPlugin extends JavaPlugin {
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		List<String> argsList = List.of(args);
+		List<String> argsList = new ArrayList<String>();
+		for (String arg : args)
+			argsList.add(arg);
 		if (argsList.isEmpty())
 			return false;
 		
@@ -48,6 +51,9 @@ public class ChallengeRunPlugin extends JavaPlugin {
 		case "create":
 			match = matchManager.createMatch();
 			sender.sendMessage("Created a new match! Code: " + match.getCode());
+			broadcastNewMatch(sender.getName(), match.getCode());
+			if (sender instanceof Player)
+				match.addPlayer((Player) sender);
 			break;
 		case "join":
 			// Validate player only
@@ -63,8 +69,9 @@ public class ChallengeRunPlugin extends JavaPlugin {
 				break;
 			}
 			// Check if already in match
-			if (matchManager.isPlayerInMatch(player)) {
-				sender.sendMessage("You are already in a match!");
+			match = matchManager.getMatchForPlayer(player);
+			if (match != null) {
+				sender.sendMessage("You are already in a match! Code: " + match.getCode());
 				break;
 			}
 			// Check if match exists
@@ -75,6 +82,7 @@ public class ChallengeRunPlugin extends JavaPlugin {
 			}
 			// Add player to match
 			match.addPlayer(player);
+			sender.sendMessage("You joined the match!");
 			break;
 		case "leave":
 			// Validate player only
@@ -91,6 +99,7 @@ public class ChallengeRunPlugin extends JavaPlugin {
 			}
 			// Remove player from match
 			match.removePlayer(player);
+			sender.sendMessage("You left the match!");
 			break;
 		case "skip":
 			// Validate player only
@@ -116,12 +125,12 @@ public class ChallengeRunPlugin extends JavaPlugin {
 		return true;
 	}
 	
-	public void broadcastNewMatch(Player owner, String code) {
+	public void broadcastNewMatch(String ownerName, String code) {
 		TextComponent clickable = new TextComponent("Click here to join!");
 		clickable.setColor(ChatColor.GREEN);
 		clickable.setBold(true);
 		clickable.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/chr join %s", code)));
-		TextComponent text = new TextComponent(String.format("%s has started a new match! ", owner.getDisplayName()));
+		TextComponent text = new TextComponent(String.format("%s has started a new match! ", ownerName));
 		Bukkit.spigot().broadcast(text, clickable);
 	}
 
