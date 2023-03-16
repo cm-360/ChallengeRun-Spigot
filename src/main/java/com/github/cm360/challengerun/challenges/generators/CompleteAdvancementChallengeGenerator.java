@@ -15,6 +15,7 @@ public class CompleteAdvancementChallengeGenerator extends ChallengeGenerator {
 	public CompleteAdvancementChallenge generateChallenge() {
 		List<Advancement> advancements = new ArrayList<Advancement>();
 		Bukkit.advancementIterator().forEachRemaining(a -> advancements.add(a));
+		advancements.removeIf(a -> a.getDisplay() == null);
 		Advancement advancement = advancements.get(rand.nextInt(advancements.size()));
 		return new CompleteAdvancementChallenge(advancement);
 	}
