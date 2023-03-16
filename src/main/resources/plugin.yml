@@ -6,4 +6,4 @@ commands:
   challengerun:
     description: Interact with ChallengeRun matches
     aliases: chr
-    usage: /<command>
+    usage: "Usage: /<command> [create|join|leave|start|stop|noprep|info|skip]"
