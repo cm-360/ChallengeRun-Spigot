@@ -136,6 +136,23 @@ public class ChallengeRunPlugin extends JavaPlugin {
 			sender.sendMessage("Ending the match...");
 			match.end();
 			break;
+		case "noprep":
+			// Validate player only
+			if (!(sender instanceof Player)) {
+				sender.sendMessage("Only players can use this command!");
+				break;
+			}
+			player = (Player) sender;
+			// Check if not in match
+			match = matchManager.getMatchForPlayer(player);
+			if (match == null) {
+				sender.sendMessage("You are not in a match!");
+				break;
+			}
+			// Remove player from match
+			sender.sendMessage("Skipping prep period...");
+			match.skipPrepPeriod();
+			break;
 		case "info":
 			// Validate player only
 			if (!(sender instanceof Player)) {
