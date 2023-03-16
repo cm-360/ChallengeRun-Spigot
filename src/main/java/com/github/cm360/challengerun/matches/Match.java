@@ -420,8 +420,10 @@ public class Match implements Listener {
 	 * Announces the scores of this match's players.
 	 */
 	private void annouceScores() {
-		playersAndScores.entrySet().stream().sorted((e1, e2) -> e2.getValue() - e1.getValue()).forEach(e -> announce(
-				String.format("%s: %d points", Bukkit.getPlayer(e.getKey()).getDisplayName(), e.getValue())));
+		playersAndScores.entrySet().stream()
+				.sorted((e1, e2) -> e2.getValue() - e1.getValue())
+				.forEach(e -> announce(
+						String.format("%s: %d points", Bukkit.getPlayer(e.getKey()).getDisplayName(), e.getValue())));
 	}
 
 	/**
