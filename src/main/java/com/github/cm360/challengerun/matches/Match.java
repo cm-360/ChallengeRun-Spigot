@@ -180,6 +180,8 @@ public class Match implements Listener {
 		currentChallenge.start();
 		announce(currentChallenge.getDescription());
 	}
+	
+	
 
 	/**
 	 * Called when the preparation period timer ends. This will generate the first
