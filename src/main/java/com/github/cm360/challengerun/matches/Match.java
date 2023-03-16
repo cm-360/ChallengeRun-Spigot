@@ -27,8 +27,11 @@ public class Match implements Listener {
 	/** The players in this match. */
 	private Map<UUID, Integer> playersAndScores = new HashMap<UUID, Integer>();
 
-	/** The players that have voted to skip the current challenge. **/
+	/** The players who have voted to skip the current challenge. **/
 	private Set<UUID> votes = new HashSet<UUID>();
+	
+	/** The players who have completed the current challenge **/
+	private Set<UUID> completed = new HashSet<UUID>();
 
 	private boolean votingAllowed = false;
 
@@ -130,13 +133,28 @@ public class Match implements Listener {
 		Challenge completedChallenge = event.getChallenge();
 		if (completedChallenge != currentChallenge)
 			return;
-		// Increment score
+		// Check if already completed
 		Player player = event.getPlayer();
 		UUID playerId = player.getUniqueId();
+		if (completed.contains(playerId))
+			return;
+		// Increment score
 		playersAndScores.put(playerId, playersAndScores.get(playerId) + 1);
 		announce(String.format("%s has completed the challenge and earned a point!", player.getDisplayName()));
-		// Disable voting
-		endVotingPeriod();
+		// Check if everyone completed
+		if (completed.containsAll(playersAndScores.keySet())) {
+			allPlayersCompleted();
+		} else {
+			endVotingPeriod();
+		}
+	}
+	
+	private void allPlayersCompleted() {
+		endChallenge();
+		announce("Great job! Everyone completed the challenge before the time limit. Your next challenge is:");
+		generateNewChallenge();
+		startChallengePeriod();
+		startVotingPeriod();
 	}
 
 	/**
@@ -156,6 +174,7 @@ public class Match implements Listener {
 	 * TODO Generates a new challenge.
 	 */
 	private void generateNewChallenge() {
+		completed.clear();
 		currentChallenge = new ObtainItemChallengeGenerator().generateChallenge();
 		currentChallenge.start();
 		announce(currentChallenge.getDescription());
