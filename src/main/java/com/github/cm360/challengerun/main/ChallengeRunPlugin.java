@@ -12,6 +12,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.github.cm360.challengerun.matches.Match;
 import com.github.cm360.challengerun.matches.MatchManager;
 
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+
 public class ChallengeRunPlugin extends JavaPlugin {
 
 	public static ChallengeRunPlugin instance;
@@ -110,6 +114,15 @@ public class ChallengeRunPlugin extends JavaPlugin {
 			return false;
 		}
 		return true;
+	}
+	
+	public void broadcastNewMatch(Player owner, String code) {
+		TextComponent clickable = new TextComponent("Click here to join!");
+		clickable.setColor(ChatColor.GREEN);
+		clickable.setBold(true);
+		clickable.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/chr join %s", code)));
+		TextComponent text = new TextComponent(String.format("%s has started a new match! ", owner.getDisplayName()));
+		Bukkit.spigot().broadcast(text, clickable);
 	}
 
 }
