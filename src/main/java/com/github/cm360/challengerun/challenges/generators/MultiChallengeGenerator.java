@@ -26,7 +26,7 @@ public class MultiChallengeGenerator extends ChallengeGenerator {
 		Iterator<Entry<ChallengeGenerator, Integer>> genIterator = generators.entrySet().iterator();
 		ChallengeGenerator gen = null;
 		int r = rand.nextInt(weightSum);
-		while (r > 0 && genIterator.hasNext()) {
+		while (r >= 0 && genIterator.hasNext()) {
 			Entry<ChallengeGenerator, Integer> entry = genIterator.next();
 			gen = entry.getKey();
 			r -= entry.getValue();
