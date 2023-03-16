@@ -5,8 +5,6 @@ import java.util.stream.Collectors;
 
 public class NameUtils {
 
-	private static final String WORD_SEPARATOR = " ";
-
 	/**
 	 * Capitalizes the first letter of each word and makes all other characters
 	 * lowercase by splitting the input String on spaces
@@ -20,17 +18,14 @@ public class NameUtils {
 	    if (text == null || text.isEmpty()) {
 	        return text;
 	    }
-	    return Arrays.stream(text.split(WORD_SEPARATOR))
-				.map(word -> word.isEmpty()
-						? word
-						: Character.toTitleCase(
-								word.charAt(0))
-								+ word.substring(1).toLowerCase())
-				.collect(Collectors.joining(WORD_SEPARATOR));
+	    return Arrays.stream(text.split("_"))
+				.map(word -> word.isEmpty() ? word
+						: Character.toTitleCase(word.charAt(0)) + word.substring(1).toLowerCase())
+				.collect(Collectors.joining(" "));
 	}
 	
 	public static String enumToTitleCase(Enum<?> enumObj) {
-		return toTitleCase(enumObj.name().replace('_', ' '));
+		return toTitleCase(enumObj.name());
 	}
 
 }
