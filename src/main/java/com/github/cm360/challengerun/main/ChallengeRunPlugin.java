@@ -131,18 +131,18 @@ public class ChallengeRunPlugin extends JavaPlugin {
 			// Check argument
 			if (!argsList.isEmpty()) {
 				nextArg = argsList.remove(0);
-				// Check if already in match
-				match = matchManager.getMatchForPlayer(player);
-				if (match == null) {
-					sender.sendMessage("You are not currently in a match.");
-					break;
-				}
-				sendMatchInfo((Player) sender, match);
-			} else {
 				// Check if match exists
 				match = matchManager.getMatchByCode(nextArg);
 				if (match == null) {
 					sender.sendMessage("That match code is not valid!");
+					break;
+				}
+				sendMatchInfo((Player) sender, match);
+			} else {
+				// Check if already in match
+				match = matchManager.getMatchForPlayer(player);
+				if (match == null) {
+					sender.sendMessage("You are not currently in a match.");
 					break;
 				}
 				sendMatchInfo((Player) sender, match);
