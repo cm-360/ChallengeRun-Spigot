@@ -234,7 +234,8 @@ public class Match implements Listener {
 	private void endChallenge() {
 		cancelTimers();
 		closeVoting();
-		currentChallenge.end();
+		if (currentChallenge != null)
+			currentChallenge.end();
 	}
 	
 	/**
