@@ -37,9 +37,10 @@ public class KillPlayerChallenge extends Challenge {
 	}
 	
 	@Override
-	public void end() {
-		this.completedBy(Bukkit.getPlayer(targetPlayerId));
-		super.end();
+	public void end(boolean allowAward) {
+		if (allowAward)
+			this.completedBy(Bukkit.getPlayer(targetPlayerId));
+		super.end(allowAward);
 	}
 	
 	@Override

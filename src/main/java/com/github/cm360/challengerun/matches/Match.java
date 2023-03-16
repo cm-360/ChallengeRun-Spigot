@@ -78,7 +78,7 @@ public class Match implements Listener {
 				new DeathMessageChallengeGenerator(),
 				3);
 		challengeGenerator.addGenerator(
-				new FindAnyPlayerChallengeGenerator(),
+				new FindAnyPlayerChallengeGenerator(p -> playersAndScores.containsKey(p.getUniqueId())),
 				5);
 		challengeGenerator.addGenerator(
 				new FindBiomeChallengeGenerator(),
@@ -140,7 +140,7 @@ public class Match implements Listener {
 	 * match's event handlers.
 	 */
 	public void end() {
-		endChallenge();
+		endChallenge(true);
 		announce("The game is over! Lets see how everyone did!");
 		annouceScores();
 		Bukkit.getPluginManager().callEvent(new MatchCompletedEvent(this));
@@ -192,7 +192,7 @@ public class Match implements Listener {
 	}
 	
 	private void allPlayersCompleted() {
-		endChallenge();
+		endChallenge(false);
 		announce("Great job! Everyone completed the challenge before the time limit. Your next challenge is:");
 		generateNewChallenge();
 		startChallengePeriod();
@@ -205,7 +205,7 @@ public class Match implements Listener {
 	 * challenge and voting periods.
 	 */
 	public void skipChallenge() {
-		endChallenge();
+		endChallenge(false);
 		announce("The current challenge was vote-skipped! Your next challenge is:");
 		generateNewChallenge();
 		startChallengePeriod();
@@ -213,7 +213,7 @@ public class Match implements Listener {
 	}
 
 	/**
-	 * TODO Generates a new challenge.
+	 * Generates a new challenge.
 	 */
 	private void generateNewChallenge() {
 		completed.clear();
@@ -240,7 +240,7 @@ public class Match implements Listener {
 	 * generate a new challenge, and restart the challenge and voting periods.
 	 */
 	private void challengeTimerEnded() {
-		endChallenge();
+		endChallenge(true);
 		announce("Times up! Your next challenge is:");
 		generateNewChallenge();
 		startChallengePeriod();
@@ -297,18 +297,24 @@ public class Match implements Listener {
 	 */
 	private void cancelTimers() {
 		BukkitScheduler bs = Bukkit.getScheduler();
-		bs.cancelTask(mainTimerTaskId);
-		bs.cancelTask(votingTimerTaskId);
+		if (mainTimerTaskId != -1 && bs.isQueued(mainTimerTaskId)) {
+			bs.cancelTask(mainTimerTaskId);
+			mainTimerTaskId = -1;
+		}
+		if (votingTimerTaskId != -1 && bs.isQueued(votingTimerTaskId)) {
+			bs.cancelTask(votingTimerTaskId);
+			votingTimerTaskId = -1;
+		}
 	}
 
 	/**
 	 * End the current challenge.
 	 */
-	private void endChallenge() {
+	private void endChallenge(boolean allowAward) {
 		cancelTimers();
 		closeVoting();
 		if (currentChallenge != null)
-			currentChallenge.end();
+			currentChallenge.end(allowAward);
 	}
 
 	/**

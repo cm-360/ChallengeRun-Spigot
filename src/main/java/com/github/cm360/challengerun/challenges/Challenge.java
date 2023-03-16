@@ -20,7 +20,7 @@ public abstract class Challenge implements Listener {
 		Bukkit.getPluginManager().registerEvents(this, ChallengeRunPlugin.instance);
 	}
 	
-	public void end() {
+	public void end(boolean allowAward) {
 		HandlerList.unregisterAll(this);
 	}
 	
