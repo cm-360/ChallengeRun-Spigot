@@ -71,6 +71,10 @@ public class Match implements Listener {
 		return playersAndScores.containsKey(player.getUniqueId());
 	}
 	
+	public Set<UUID> getPlayerIds() {
+		return playersAndScores.keySet();
+	}
+	
 	public String getCode() {
 		return String.format("%08X", this.hashCode());
 	}

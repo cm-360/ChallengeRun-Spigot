@@ -2,6 +2,7 @@ package com.github.cm360.challengerun.main;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -101,6 +102,52 @@ public class ChallengeRunPlugin extends JavaPlugin {
 			match.removePlayer(player);
 			sender.sendMessage("You left the match!");
 			break;
+		case "start":
+			// Validate player only
+			if (!(sender instanceof Player)) {
+				sender.sendMessage("Only players can use this command!");
+				break;
+			}
+			player = (Player) sender;
+			// Check if not in match
+			match = matchManager.getMatchForPlayer(player);
+			if (match == null) {
+				sender.sendMessage("You are not in a match!");
+				break;
+			}
+			// Remove player from match
+			sender.sendMessage("Starting the match...");
+			match.start();
+			break;
+		case "stop":
+			break;
+		case "info":
+			// Validate player only
+			if (!(sender instanceof Player)) {
+				sender.sendMessage("Only players can use this command!");
+				break;
+			}
+			player = (Player) sender;
+			// Check argument
+			nextArg = argsList.remove(0);
+			if (nextArg == null) {
+				// Check if already in match
+				match = matchManager.getMatchForPlayer(player);
+				if (match == null) {
+					sender.sendMessage("You are not currently in a match.");
+					break;
+				}
+				sendMatchInfo((Player) sender, match);
+			} else {
+				// Check if match exists
+				match = matchManager.getMatchByCode(nextArg);
+				if (match == null) {
+					sender.sendMessage("That match code is not valid!");
+					break;
+				}
+				sendMatchInfo((Player) sender, match);
+			}
+			break;
 		case "skip":
 			// Validate player only
 			if (!(sender instanceof Player)) {
@@ -123,6 +170,14 @@ public class ChallengeRunPlugin extends JavaPlugin {
 			return false;
 		}
 		return true;
+	}
+	
+	public void sendMatchInfo(Player player, Match match) {
+		player.sendMessage("Currently in match " + match.getCode());
+		String playerList = String.join(", ", match.getPlayerIds().stream()
+				.map(pid -> Bukkit.getPlayer(pid).getDisplayName())
+				.collect(Collectors.toList()));
+		player.sendMessage("  Players: " + playerList);
 	}
 	
 	public void broadcastNewMatch(String ownerName, String code) {
