@@ -64,8 +64,8 @@ public class ChallengeRunPlugin extends JavaPlugin {
 			}
 			player = (Player) sender;
 			// Check argument
-			nextArg = argsList.remove(0);
-			if (nextArg == null) {
+			if (!argsList.isEmpty()) {
+				nextArg = argsList.remove(0);
 				sender.sendMessage("You must provide a match code!");
 				break;
 			}
@@ -129,8 +129,8 @@ public class ChallengeRunPlugin extends JavaPlugin {
 			}
 			player = (Player) sender;
 			// Check argument
-			nextArg = argsList.remove(0);
-			if (nextArg == null) {
+			if (!argsList.isEmpty()) {
+				nextArg = argsList.remove(0);
 				// Check if already in match
 				match = matchManager.getMatchForPlayer(player);
 				if (match == null) {
